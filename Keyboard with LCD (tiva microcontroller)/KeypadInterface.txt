@@ -1,0 +1,50 @@
+#include "tm4c123gh6pm.h"
+#define r1 (1U<<4) //C4
+#define r2 (1U<<5) //C5
+#define r3 (1U<<6) //C6
+#define r4 (1U<<7) //C7
+
+#define c1 (1U<<1) //E1
+#define c2 (1U<<2) //E2
+#define c3 (1U<<3) //E3
+#define c4 (1U<<4) //E4
+
+const unsigned char keymap[4][4] = {
+
+{ '1', '2', '3', 'A'},
+
+{ '4', '5', '6', 'B'},
+
+{ '7', '8', '9', 'C'},
+
+{ '*', '0', '#', 'D'},
+
+};
+
+
+
+void initPortE() {
+   SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_R4;
+   GPIO_PORTE_DEN_R |= c1|c2|c3|c4;
+   GPIO_PORTE_PUR_R |= (c1|c2|c3|c4);
+   GPIO_PORTE_DIR_R &= ~c1;
+   GPIO_PORTE_DIR_R &= ~c2;
+   GPIO_PORTE_DIR_R &= ~c3;
+   GPIO_PORTE_DIR_R &= ~c4;
+ //  GPIO_PORTD_DATA_R |= c1|c2|c3|c4;
+}
+
+void initPortC() {
+   SYSCTL_RCGCGPIO_R |= SYSCTL_RCGCGPIO_R2;
+   GPIO_PORTC_ODR_R |= r1|r2|r3|r4;
+   GPIO_PORTC_DEN_R |= r1|r2|r3|r4;
+   GPIO_PORTC_DIR_R |= r1|r2|r3|r4;
+   GPIO_PORTC_DATA_R |= r1|r2|r3|r4;
+}
+
+void delay1(int number) {
+  int count = 0;
+  while(count < number) {
+    ++count;
+  }
+}

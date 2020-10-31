@@ -1,0 +1,202 @@
+#include "tm4c123gh6pm.h"
+#include "InputSwitches.h"
+#include "LCDInterfacePins.h"
+#include "keypadInterface.h"
+
+int main()
+{
+  
+
+  initPortC();
+  initPortE();
+  initPortA();
+  initPortB();
+  initPortF();
+  GPIO_PORTF_DIR_R |= (1U<<1);
+  GPIO_PORTF_DEN_R  |=(1U<<1);
+  initLCD();
+  const char rows[] = {r1, r2, r3, r4};
+  const char cols[] = {c1, c2, c3, c4};
+  int pressedRow = -1;
+  int pressedCol = -1;
+  int counter3ad=0;
+  int temp=0;
+  unsigned char keys[]={'0','0'};
+  unsigned char keys2[]={'.','0','0'};
+  unsigned char key;
+  //GPIO_PORTF_DATA_R = DARK;
+  //GPIO_PORTB_DATA_R &=0;
+  while(counter3ad < 2) { 
+    for (int i=0;i<4;i++){
+       GPIO_PORTC_DATA_R |= r1|r2|r3|r4;
+       GPIO_PORTC_DATA_R &= ~rows[i];
+        pressedRow = i;
+       delay1(10000);
+       
+       for (int j = 0; j<4; j++) {
+         if(!(GPIO_PORTE_DATA_R & cols[j])) {
+          //GPIO_PORTF_DATA_R = RED;
+          pressedCol = j;
+          keys[counter3ad] = keymap [i][j];
+         LCD_Print_word(keys[counter3ad]);
+          key=keymap [i][j];
+          counter3ad++;
+
+ 
+ 
+          //displayOn7Seg(i,j);
+          delay1(1000000);
+         // GPIO_PORTF_DATA_R = DARK;
+       }
+    }
+       
+       }
+  }
+ counter3ad=0;
+//unsigned char x[]="10";
+ sendCommand(0x01);
+
+for(int y=0;y<2;y++)
+{
+  LCD_Print_word(keys[y]);
+}
+
+for(int z=0;z<3;z++)
+{
+  LCD_Print_word(keys2[z]);
+}
+
+while(temp==0)
+{
+while(didPressSwInc() && !didPressSwDec() )
+{
+NVIC_ST_RELOAD_R = 0x001879A0;   
+NVIC_ST_CTRL_R = 5;         
+while ((NVIC_ST_CTRL_R & 0x10000) == 0);     
+
+delay1(100000);
+keys2[2]='9';
+keys[1]--;
+if(keys[1]=='/')
+{
+  keys[1]='9';
+  keys[0]--;
+}
+
+sendCommand(0x01);
+ for(int y=0;y<2;y++)
+{
+  LCD_Print_word(keys[y]);
+}
+
+for(int z=0;z<3;z++)
+{
+  LCD_Print_word(keys2[z]);
+}
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+//---------------------------------------------------------------------------
+while(keys2[1]=='0' && temp==0)
+{
+  
+  keys2[2]--;
+  if(keys2[2]=='/')
+  {
+ 
+    keys2[2]='9';
+    keys[1]--;
+    
+  }
+  if(keys[1]=='/')
+  {
+    keys[1]='9';
+    keys[0]--;
+    
+  }
+    if(keys[0]=='/')
+  {
+    keys[1]='0';
+    keys[1]='0';
+    
+  }
+  while(didPressSwDec() )
+{
+    keys[0]='0';
+    keys[1]='0';
+   keys2[0]='.';
+   keys2[1]='0';
+   keys2[2]='0';
+   sendCommand(0x01);
+  for(int y=0;y<2;y++)
+{
+  LCD_Print_word(keys[y]);
+}
+
+for(int z=0;z<3;z++)
+{
+  LCD_Print_word(keys2[z]);
+}
+temp=1;
+GPIO_PORTF_DATA_R |= (1U<<1) ;
+
+
+for(int i=0;i<5;i++)
+{
+  NVIC_ST_RELOAD_R = 0xFFFFFF;   
+NVIC_ST_CTRL_R = 5; 
+  while ((NVIC_ST_CTRL_R & 0x10000) == 0); 
+}
+GPIO_PORTF_DATA_R &=~(1U<<1) ;
+
+}
+if(temp==0)
+{
+delay1(10000);
+ NVIC_ST_RELOAD_R = 0x001879A0; 
+NVIC_ST_CTRL_R = 0x5;         
+while ((NVIC_ST_CTRL_R & 0x10000) == 0); 
+//delay1(100000);
+  sendCommand(0x01);
+ for(int y=0;y<2;y++)
+{
+  LCD_Print_word(keys[y]);
+}
+
+for(int z=0;z<3;z++)
+{
+  LCD_Print_word(keys2[z]);
+}
+}
+}
+//}
+
+}
+while(didPressSwDec() && !didPressSwInc())
+{
+   unsigned char keys3[]={'0','0'};
+  unsigned char keys24[]={'.','0','0'};
+   sendCommand(0x01);
+  for(int y=0;y<2;y++)
+{
+  LCD_Print_word(keys3[y]);
+}
+
+for(int z=0;z<3;z++)
+{
+  LCD_Print_word(keys24[z]);
+}
+
+}
+}
+temp=0;
+
+//----------------------------------------------------------------------------  
+
+
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+  return 0;
+}
